@@ -1,0 +1,4 @@
+net stop spooler
+del /F /Q %systemroot%\System32\spool\PRINTERS\*
+del /F /Q %systemroot%\System32\spool\SERVERS\*
+net start spooler
