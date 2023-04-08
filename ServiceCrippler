@@ -1,0 +1,16 @@
+$services = @( 
+"add services here"
+"Like So"
+"With no spaces"
+"That youd like to disable or criple"
+"DiagTrack"
+"spooler"
+"ExampleServiceName"
+)
+
+foreach ($service in $services) {
+echo "Trying to disable $service"
+Get-Service -Name $service |Set-Service -StartupType Disabled
+ech "$service disabled"
+
+}
