@@ -1,0 +1,5 @@
+netsh advfirewall set allprofiles firewallpolicy blockinbound,blockoutbound
+netsh advfirewall firewall add rule name="Core Networking (HTTP-OUT)" dir=out action=allow protocol=TCP remoteport=80
+netsh advfirewall firewall add rule name="Core Networking (HTTPS-OUT)" dir=out action=allow protocol=TCP remoteport=443
+netsh advfirewall firewall add rule name="Core Networking (DNS-OUT)" dir=out action=allow protocol=UDP remoteport=53 program="C:\system32\svchost.exe" service="dnscache"
+netsh advfirewall firewall add rule name="Core Networking (DHCP-OUT)" dir=out action=allow protocol=UDP localport=68 remoteport=67 program="C:\system32\svchost.exe" service="dhcp"
