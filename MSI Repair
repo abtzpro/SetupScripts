@@ -1,0 +1,8 @@
+sc config msiserver start=demand
+Net stop msiserver
+
+MSIExec /unregister
+MSIExec /regserver
+regsvr32.exe /s %windir%\system32\msi.dll
+
+Net start msiserver
