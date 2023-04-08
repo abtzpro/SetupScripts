@@ -1,0 +1,3 @@
+SFC /SCANNOW
+DISM /Online /Cleanup-Image /StartComponentCleanup
+DISM /Online /Cleanup-Image /RestoreHealth
