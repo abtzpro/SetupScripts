@@ -53,8 +53,8 @@ Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\W
 Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Services\NetBT\Parameters\Interfaces\Tcpip_*' -Name 'NetbiosOptions' -Value 2
 
 # Disable LLMNR and NBT-NS
-Disable-NetAdapterBinding -Name '<AdapterName>' -ComponentID ms_llmnr
-Disable-NetAdapterBinding -Name '<AdapterName>' -ComponentID ms_nbt
+Disable-NetAdapterBinding -Name 'Ethernet' -ComponentID ms_llmnr
+Disable-NetAdapterBinding -Name 'Ethernet' -ComponentID ms_nbt
 
 # Disable the WebClient service
 Stop-Service -Name WebClient
@@ -97,7 +97,7 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope LocalMachine
 
 # Disable the guest account and rename the administrator account
 Disable-LocalUser -Name Guest
-Rename-LocalUser -Name Administrator -NewName <NewAdminName>
+Rename-LocalUser -Name Administrator -NewName HardenedAdmin
 
 # Set up auditing for security events
 wevtutil sl Security /ca:O:S-1-5-32-544
@@ -107,7 +107,9 @@ wevtutil sl Security /ca:O:S-1-5-32-544 /e:System
 Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters' -Name 'DisableCompression' -Value 1
 
 # Disable the NetBIOS protocol
-Disable-NetAdapterBinding -Name '<AdapterName>' -ComponentID ms_netbios
+Disable-NetAdapterBinding -Name 'Ethernet' -ComponentID ms_netbios
+Disable-NetAdapterBinding -Name 'Wi-FI'
+-ComponentID ms_netbios
 
 # Disable IPv6 if it is not required
 Set-NetIPv6Protocol -State Disabled
