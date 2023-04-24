@@ -151,3 +151,78 @@ Enable-BitLocker -MountPoint '<DriveLetter>:' -EncryptionMethod Aes256 -UsedSpac
 
 # Update Windows and other software to the latest versions
 Get-WUInstall -AcceptAll -AutoReboot
+
+# disable LSA anonymous enumeration 
+Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Lsa' -Name 'RestrictAnonymousSAM' -Value 1
+
+# disable windows remote management over http 
+Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\WinRM\Service' -Name 'AllowUnencryptedTraffic' -Value 0
+
+# Disable ping response
+Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Nls\CustomLocale' -Name '00000809' -Value '02 00 00 00'
+
+# Disable LSA anonymousession 
+Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Lsa' -Name 'everyoneincludesanonymous' -Value 0
+
+# disable script host 
+Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows Script Host\Settings' -Name 'Enabled' -Value 0
+
+# disable WMI
+Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Services\Winmgmt' -Name 'Start' -Value 4
+
+Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\SSL 3.0\Server' -Name 'Enabled' -Value 0 -Force
+Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.0\Server' -Name 'Enabled' -Value 0 -Force
+
+Set-ItemProperty -Path HKLM:\SOFTWARE\Microsoft\PolicyManager\default\WiFi\AllowWiFiHotSpotReporting -Name value -Type DWORD -Value 0
+
+Set-ItemProperty -Path HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Search -Name CortanaConsent -Type DWORD -Value 0
+
+# Install the most updated version of Firefox
+$firefoxUrl = "https://download.mozilla.org/?product=firefox-latest-ssl&os=win64&lang=en-US"
+$firefoxPath = "$env:USERPROFILE\Downloads\firefox.exe"
+Invoke-WebRequest -Uri $firefoxUrl -OutFile $firefoxPath
+Start-Process -FilePath $firefoxPath -ArgumentList "/S"
+
+# Install the most updated version of Chrome
+$chromeUrl = "https://dl.google.com/chrome/install/standalone/enterprise/GoogleChromeEnterpriseBundle64.zip"
+$chromePath = "$env:USERPROFILE\Downloads\chrome.zip"
+Invoke-WebRequest -Uri $chromeUrl -OutFile $chromePath
+Expand-Archive -Path $chromePath -DestinationPath "$env:ProgramFiles\Google\" -Force
+$chromeInstallerPath = Get-ChildItem -Path "$env:ProgramFiles\Google\Google Chrome Enterprise" -Filter "GoogleChrome*.msi" -Recurse | Select-Object -First 1 -ExpandProperty FullName
+Start-Process -FilePath msiexec.exe -ArgumentList "/i `"$chromeInstallerPath`" /qn /norestart"
+
+# Disable Microsoft Edge
+New-ItemProperty -Path "HKCU:\SOFTWARE\Policies\Microsoft\Edge" -Name "AllowEdgeSwipe" -PropertyType DWord -Value 0 -Force
+New-ItemProperty -Path "HKCU:\SOFTWARE\Policies\Microsoft\Edge" -Name "PreventFirstRunPage" -PropertyType DWord -Value 1 -Force
+New-ItemProperty -Path "HKCU:\SOFTWARE\Policies\Microsoft\Edge" -Name "DisableWebViewCreation" -PropertyType DWord -Value 1 -Force
+
+# Download and install the Microsoft Store app package
+Invoke-WebRequest -Uri https://aka.ms/winget-cli -OutFile winget-cli.appxbundle
+# Install the app package
+Add-AppPackage .\winget-cli.appxbundle
+
+# winget install the latest steam release because I got love for my fellow gamers
+winget install Valve.Steam
+
+# winget install microsoftdefenderATP
+winget install MicrosoftDefenderATP
+
+# winget install tweaking repair
+winget install Tweaking.WindowsRepair
+
+# winget install Autopsy forensic imager
+winget install sleuthkit.Autopsy
+
+# winget install windows media creation tool
+winget install Microsoft.WindowsMediaCreationTool
+
+# winget secondary debloat 
+$packageList = Get-AppxPackage | Where-Object {($_.IsFramework -eq $false) -and ($_.PackageFullName -notlike "*store*")}
+ForEach ($package in $packageList) {
+    Remove-AppxPackage -Package $package.PackageFullName
+}
+
+
+
+
+
