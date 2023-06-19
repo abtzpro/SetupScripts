@@ -22,6 +22,44 @@ Get-AppxPackage *windowscommunicationsapps* | Remove-AppxPackage
 Get-AppxPackage *windowsmaps* | Remove-AppxPackage
 Get-AppxPackage *windowsstore* | Remove-AppxPackage
 Get-AppxPackage *xbox* | Remove-AppxPackage
+Get-AppxPackage *Microsoft.WindowsAlarms* | Remove-AppxPackage
+Get-AppxPackage *Microsoft.YourPhone* | Remove-AppxPackage
+Get-AppxPackage *Microsoft.Windows.Photos* | Remove-AppxPackage
+Get-AppxPackage *Microsoft.ZuneMusic* | Remove-AppxPackage
+Get-AppxPackage *Microsoft.HEIFImageExtension* | Remove-AppxPackage
+Get-AppxPackage *Microsoft.People* | Remove-AppxPackage
+Get-AppxPackage *Microsoft.WindowsMaps* | Remove-AppxPackage
+Get-AppxPackage *Microsoft.GetHelp* | Remove-AppxPackage
+Get-AppxPackage *Microsoft.XboxIdentityProvider* | Remove-AppxPackage
+Get-AppxPackage *Microsoft.NET.Native.Framework.2.2* | Remove-AppxPackage
+Get-AppxPackage *Microsoft.XboxGamingOverlay* | Remove-AppxPackage
+Get-AppxPackage *Microsoft.NET.Native.Runtime.2.2* | Remove-AppxPackage
+Get-AppxPackage *Microsoft.VP9VideoExtensions* | Remove-AppxPackage
+Get-AppxPackage *Microsoft.XboxGameOverlay* | Remove-AppxPackage
+Get-AppxPackage *Microsoft.XboxSpeechToTextOverlay* | Remove-AppxPackage
+Get-AppxPackage *Microsoft.WebpImageExtension* | Remove-AppxPackage
+Get-AppxPackage *Microsoft.VCLibs.140.00.UWPDesktop* | Remove-AppxPackage
+Get-AppxPackage *Microsoft.ZuneVideo* | Remove-AppxPackage
+Get-AppxPackage *Microsoft.XboxApp* | Remove-AppxPackage
+Get-AppxPackage *Microsoft.WindowsSoundRecorder* | Remove-AppxPackage
+Get-AppxPackage *Microsoft.WindowsFeedbackHub* | Remove-AppxPackage
+Get-AppxPackage *microsoft.windowscommunicationsapps* | Remove-AppxPackage
+Get-AppxPackage *Microsoft.WindowsCamera* | Remove-AppxPackage
+Get-AppxPackage *Microsoft.WindowsCalculator* | Remove-AppxPackage
+Get-AppxPackage *Microsoft.WebMediaExtensions* | Remove-AppxPackage
+Get-AppxPackage *Microsoft.SkypeApp* | Remove-AppxPackage
+Get-AppxPackage *Microsoft.ScreenSketch* | Remove-AppxPackage
+Get-AppxPackage *Microsoft.Office.OneNote* | Remove-AppxPackage
+Get-AppxPackage *Microsoft.MSPaint* | Remove-AppxPackage
+Get-AppxPackage *Microsoft.MixedReality.Portal* | Remove-AppxPackage
+Get-AppxPackage *Microsoft.MicrosoftStickyNotes* | Remove-AppxPackage
+Get-AppxPackage *Microsoft.MicrosoftSolitaireCollection* | Remove-AppxPackage
+Get-AppxPackage *Microsoft.MicrosoftOfficeHub* | Remove-AppxPackage
+Get-AppxPackage *Microsoft.Microsoft3DViewer* | Remove-AppxPackage
+Get-AppxPackage *Microsoft.Getstarted* | Remove-AppxPackage
+Get-AppxPackage *Microsoft.BingWeather* | Remove-AppxPackage
+Get-AppxPackage *Microsoft.VCLibs.140.00* | Remove-AppxPackage
+Get-AppxPackage *Microsoft.549981C3F5F10* | Remove-AppxPackage
 
 # Disable Windows tips and notifications
 Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\PushNotifications" -Name "ToastEnabled" -Value 0 -Type DWord
