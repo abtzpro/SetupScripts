@@ -1,4 +1,10 @@
-# Set up script for Windows 10 Home
+# Debloating and Hardening script for Windows 10 Home - by Adam Rivers
+
+# Enable system restore point creation 
+Enable-ComputerRestore -Drive "C:\"
+
+# Set a restore point
+Checkpoint-Computer -Description "RiversHardeningBaseline" -RestorePointType "MODIFY_SETTINGS"
 
 # Disable telemetry
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry" -Value 0 -Type DWord
@@ -200,3 +206,238 @@ Set-MpPreference -DisableBehaviorMonitoring $false
 Set-MpPreference -DisableRealtimeMonitoring $false
 Set-MpPreference -DisableIOAVProtection $false
 Set-MpPreference -DisableIntrusionPreventionSystem $
+
+# Set User Account Control to highest settings
+Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\System" -Name ConsentPromptBehaviorAdmin -Value 2
+
+# Disable Powershell 2 point 0 for security
+Disable-WindowsOptionalFeature -Online -FeatureName "MicrosoftWindowsPowerShellV2Root"
+
+# Enable Windows Firewall
+Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled True
+
+# Disable SMBV1 protocol
+Set-SmbServerConfiguration -EnableSMB1Protocol $false
+
+# Disable Guest Account
+Disable-LocalUser -Name "Guest"
+
+# Apply Strict Password Policy 
+Set-ADDefaultDomainPasswordPolicy -Identity AD -ComplexityEnabled $true -LockoutDuration "0.12:00:00" -LockoutObservationWindow "0.00:30:00" -LockoutThreshold 10 -MaxPasswordAge "60.00:00:00" -MinPasswordAge "1.00:00:00" -MinPasswordLength 8 -PasswordHistoryCount 24 -ReversibleEncryptionEnabled $false
+
+# Enable BitLocker (replace with your recovery key)
+# Enable-BitLocker -MountPoint "C:" -EncryptionMethod XtsAes128 -UsedSpaceOnly -Pin "AyoStickYerKeyHere" -TPMandPinProtector 
+
+# Prevent invalid signed software from running
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "CodeIntegrity" -Value 1
+
+# Enable SmartScreen
+Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AppHost" -Name "EnableWebContentEvaluation" -Value 1
+
+# Disable autorun malware vector
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "NoDriveTypeAutoRun" -Value 255
+
+# Disable Unrequired Features
+Disable-WindowsOptionalFeature -Online -FeatureName "FaxServicesClientPackage"
+Disable-WindowsOptionalFeature -Online -FeatureName "Printing-Foundation-InternetPrinting-Client"
+Disable-WindowsOptionalFeature -Online -FeatureName "WorkFolders-Client"
+Disable-WindowsOptionalFeature -Online -FeatureName "Xps-Foundation-Xps-Viewer"
+
+# Disable script host to block .VBS malware vectors
+New-ItemProperty -Path "HKCU:\Software\Microsoft\Windows Script Host\Settings" -Name "Enabled" -Value 0 -PropertyType "DWord"
+
+# Prevent windows media player from sharing media
+Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\MediaPlayer\Preferences\HME' -name "DisableMediaSharing" -Value 1
+
+# Enable win defender realtime network monitoring
+Set-MpPreference -NISScanningEnabled $true
+
+# Block untrusted fonts
+New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Kernel\" -Name "MitigationOptions_FontBocking" -Value "1000000000000" -PropertyType "String"
+
+# Disable the customer experience improvement program - for privacy
+Set-ItemProperty -Path 'HKLM:\Software\Policies\Microsoft\SQMClient\Windows' -Name "CEIPEnable" -Value 0
+
+# Disable AutoPlay on all devices
+Set-ItemProperty -Path 'HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer' -Name "NoDriveTypeAutoRun" -Value 255
+
+# Disable remote assistance
+Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Remote Assistance' -Name "fAllowToGetHelp" -Value 0
+
+# Limit number of connections to smb share 
+Set-SmbServerConfiguration -MaxSessionsPerUser 1
+
+# Disable unneeded features on demand
+Get-WindowsCapability -Online | ? State -eq 'Installed' | Remove-WindowsCapability -Online
+
+# Disable NetBIOS over TCP/IP
+Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Services\NetBT\Parameters' -Name "NetBiosOptions" -Value 2
+
+# Disable administrative shares 
+Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Services\LanManServer\Parameters' -Name "AutoShareWks" -Value 0
+
+# Restrict anonymous access to named pipes and shares
+Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Lsa' -Name "restrictanonymous" -Value 1
+
+# Enable firewall for all network profiles
+Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled True
+
+# Set audit policy to log failed events
+AuditPol /Set /SubCategory:* /Failure:Enable
+
+# Limit local use of blank passwords
+Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa" LimitBlankPasswordUse -Type DWORD -Value 1 -Force
+
+# Enable Network Access: Do not allow anonymous enumeration of SAM accounts
+Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Lsa" RestrictAnonymousSAM -Type DWORD -Value 1 -Force
+
+# Disable automatic wifi sense connections
+Set-ItemProperty -Path "HKLM:\Software\Microsoft\PolicyManager\current\default\WiFi\AllowWiFiHotSpotReporting" value -Type DWORD -Value 0 -Force
+Set-ItemProperty -Path "HKLM:\Software\Microsoft\PolicyManager\current\default\WiFi\AllowAutoConnectToWiFiSenseHotspots" value -Type DWORD -Value 0 -Force
+
+# Disable saved RDP creds
+Set-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows NT\Terminal Services" -Name "DisablePasswordSaving" -Value 1 -Force
+
+# Disable location tracking
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\LocationAndSensors" -Name "DisableLocation" -Value 1 -Force
+
+# Disable advertising ID
+Set-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\AdvertisingInfo" -Name "DisabledByGroupPolicy" -Value 1 -Force
+
+# Disable start menu app suggestions and ads
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Name "DisableWindowsConsumerFeatures" -Value 1 -Force
+
+# Disable lockscreen app notifs
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "DisableLockScreenAppNotifications" -Value 1 -Force
+
+# Prevent the usage of onedrive for file storage
+Set-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\OneDrive" -Name "DisableFileSyncNGSC" -Value 1 -Force
+
+# Disable shared experiences 
+Set-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\System" -Name "EnableCdp" -Value 0 -Force
+
+# Prevent automatic download of manufacturers' apps and icons for devices
+Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Device Metadata" -Name "PreventDeviceMetadataFromNetwork" -Value 1 -Force
+
+# No handwriting personalation data sharing
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\TabletPC" -Name "PreventHandwritingDataSharing" -Value 1 -Force
+
+# Prevent cloud sync of settings
+Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\SettingSync\Groups\Language" -Name "Enabled" -Value 0 -Force
+
+# Disable windows feedback requests
+Set-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\DataCollection" -Name "DoNotShowFeedbackNotifications" -Value 1 -Force
+
+# Enable win defend PUA detection
+Set-MpPreference -PUAProtection 1
+
+# Set windows firewall to block outbound connections by default
+Set-NetFirewallProfile -DefaultOutboundAction Block
+
+# Enable audit process creation
+auditpol /set /subcategory:"Process Creation" /success:enable /failure:enable
+
+# Enable windows defender exploit protection
+Set-ProcessMitigation -System -Enable ExploitGuard
+
+# Enable credential gaurd
+New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\LSA" -Name "LsaCfgFlags" -Value 1 -PropertyType "Dword"
+
+# Block remote desktop connections
+Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Terminal Server" -Name "fDenyTSConnections" -Value 1
+
+# Enable SecureBoot
+Confirm-SecureBootUEFI
+
+# Disable SMB2 and SMB3 - might cause network file transfer issues
+Set-SmbServerConfiguration -EnableSMB2Protocol $false
+
+# Disable WebDAV
+Disable-WebDAV -confirm:$false
+
+# Disable AutoLogon
+Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name "AutoAdminLogon" -Value "0"
+
+# Enable windodws defender behavior monitoring
+Set-MpPreference -DisableBehaviorMonitoring $false
+
+# Disable powershell remoting
+Disable-PSRemoting -Force
+
+# Disable unsecured guest logons, which can allow unauthenticated network access
+Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\System" -Name "RestrictGuestAccess" -Value 1
+
+# Block remote access to plug n play - often abused by attackers
+Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\PlugPlay" -Name "Start" -Value 4
+
+# Enable audit for successful or failed logon events - for help in determining suspicious activity
+auditpol /set /subcategory:"Logon" /success:enable /failure:enable
+
+# Disable OneDrive altogether - if you are using a different backup otion and dont want one drive
+Set-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\OneDrive" -Name "DisableFileSyncNGSC" -Value 1
+
+# Block executables from running in AppData a common vector for malware
+New-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer\DisallowRun" -Name "1" -Value "*.exe"
+
+# Disable clipboard history
+Set-ItemProperty -Path "HKCU:\Software\Microsoft\Clipboard" -Name "EnableClipboardHistory" -Value 0
+
+# Disable outdated Dynamic Data Exchange DDE
+Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "NoDDE" -Value 1
+Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "NoDDEAdvertise" -Value 1
+
+# Disable Edge preloading
+Set-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\MicrosoftEdge\Main" -Name "AllowPrelaunch" -Value 0
+
+# Set windows defender blocking level to sensitive af
+Set-MpPreference -HighThreatDefaultAction Block -ModerateThreatDefaultAction Block -LowThreatDefaultAction Block
+
+# Set internet explorer to high security level
+Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\3" -Name 1809 -Value 0
+
+# Disable Windows Tips
+Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-338393Enabled" -Value 0
+
+# Force UAC to use secure desktop
+Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\System" -Name "PromptOnSecureDesktop" -Value 1
+
+# Force the use of 128-bit encryption to secure Windows file sharing communications
+Set-SmbServerConfiguration -RequireSecuritySignature $true -Force
+
+# Redundant remote registry blocking
+Set-Service -Name RemoteRegistry -StartupType Disabled -Status Stopped
+
+# Restrict powershell and cmd to admins only
+Set-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Windows\System" -Name "DisableCMD" -Value 1
+Set-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Windows\PowerShell" -Name "DisableCommandLine" -Value 1
+
+# Limit exposure to open network shares to local network
+New-NetFirewallRule -DisplayName "Block Inbound Network Discovery" -Direction Inbound -Action Block -Profile Private -Service FDResPub
+
+# Redundant disabling of inbound remote desktop services
+Set-NetFirewallRule -DisplayGroup "Remote Desktop" -Enabled False
+
+# Enable Address Space Layout Randomization (ASLR) to make it more difficult for an attacker to predict target address
+Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" -Name "MoveImages" -Value 0xFF
+
+# Enable Network Access Protection Agent to help prevent network-based attacks
+Set-Service napagent -StartupType Automatic
+
+# Enable powershell logging
+Set-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\PowerShell\ModuleLogging" -Name "EnableModuleLogging" -Value 1
+
+# Enable script block logging
+Set-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\PowerShell\ScriptBlockLogging" -Name "EnableScriptBlockLogging" -Value 1
+
+# Restrict NTLM authentication to reduce the risk of pass-the-hash attacks
+Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\MSV1_0" -Name "RestrictReceivingNTLMTraffic" -Value 2
+
+# Enable controlled folder access
+Set-MpPreference -EnableControlledFolderAccess Enabled
+
+# Enable powershell transcripts for tracing powershell commands backwards
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell\Transcription" -Name "EnableTranscripting" -Value 1
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell\Transcription" -Name "EnableInvocationHeader" -Value 1
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell\Transcription" -Name "OutputDirectory" -Value "C:\Transcripts"
+
+
